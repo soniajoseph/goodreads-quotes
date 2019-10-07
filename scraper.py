@@ -28,14 +28,17 @@ def quotes_by_author(author, page_num=None):
 	# for each page
 	for i in range(1, page_num+1, 1):
 
-		print("scraping page", i)
-
-		page = requests.get("https://www.goodreads.com/quotes/search?commit=Search&page=" + str(i) + "&q=" + author + "&utf8=%E2%9C%93")
-		soup = BeautifulSoup(page.text, 'html.parser')
-
+		try:
+			page = requests.get("https://www.goodreads.com/quotes/search?commit=Search&page=" + str(i) + "&q=" + author + "&utf8=%E2%9C%93")
+			soup = BeautifulSoup(page.text, 'html.parser')
+			print("scraping page", i)
+		except:
+			print("could not connect to goodreads")
+			break
+			
 		try:
 			quote = soup.find(class_="leftContainer")
-			quote_list = quote.find_all(class_="quote mediumText")
+			quote_list = quote.find_all(class_="quoteDetails")
 		except:
 			pass
 
@@ -59,7 +62,7 @@ def quotes_by_author(author, page_num=None):
 			try:
 				author = quote.find(class_="authorOrTitle").text
 				author = author.replace(",", "")
-				author = author.replace("\n", "")
+				# author = author.replace("\n", "")
 				meta_data.append(author.strip())
 				# print(author)
 			except:
@@ -69,8 +72,9 @@ def quotes_by_author(author, page_num=None):
 			try: 
 				title = quote.find(class_="authorOrTitle")
 				title = title.nextSibling.nextSibling.text
-				title = title.replace("\n", "")
+				# title = title.replace("\n", "")
 				meta_data.append(title.strip())
+				# print(title)
 			except:
 				meta_data.append(None)
 
@@ -80,6 +84,7 @@ def quotes_by_author(author, page_num=None):
 				tags = [x.strip() for x in tags.split(',')]
 				tags = tags[1:]
 				meta_data.append(tags)
+				# print(tags)
 			except:
 				meta_data.append(None)
 
@@ -95,5 +100,16 @@ def quotes_by_author(author, page_num=None):
 
 			all_quotes.append(meta_data)
 
+
+		for text, author, title, tags, likes in all_quotes:
+			print(text)
+			print(author)
+			print(title)
+			print(tags)
+			print(likes)
+			print()
+
 	return all_quotes
+
+quotes_by_author("jk rowling", 1)
 
